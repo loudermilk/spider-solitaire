@@ -1,0 +1,33 @@
+---
+title: "ss_1"
+author: "Brandon C. Loudermilk"
+date: "August 23, 2015"
+output: html_document
+---
+
+For this project I decided to create a spider solitaire application. I was interested in some underlying questions of the game -- like what percentage of the deals are actually winnable -- and I knew I would need some sort of game simulator for my analysis and testing. Since, I'm relatively new to the language and was hoping to learn some of its more advanced technqiues, I decided to do all of my development work in the R language.
+
+My background in software development is primarily in object oriented programming using languages like Java and C++, so I tend to see problems from a decidely OO perspective. I have a preference for compiled languages with strong typing, and admit that I find most scripting languages **disturbing** (i.e. **cringe worthy**)and would almost always prefer to do an industry production-level job in a language like Java. 
+
+If you are an OO developer like myself, you will be happy to know that R supports an object oriented system -- actually it supports three OO systems (i.e., [S3](http://adv-r.had.co.nz/OO-essentials.html#s3), [S4](http://adv-r.had.co.nz/OO-essentials.html#s4), & [RC](http://adv-r.had.co.nz/OO-essentials.html#rc)) with varying degrees of formality and adherence to OO principles like encapsulation and inheritance. For the current project, I decided to use R's S4 object system as the primary backbone of my spider solitaire application.
+
+Besides the obvious sources like google and [stack overflow](http://stackoverflow.com/), the other primary influences and sources of informarion are various [github](https://github.com/) projects, [cran packages](https://cran.r-project.org/web/packages/available_packages_by_name.html), and anything written or designed by [Hadley Wickham](https://cran.r-project.org/web/packages/available_packages_by_name.html). 
+
+## Step 1 - Refining the project
+Need some definite goals and requirements so I can develop a specification. 
+
+- create repo on github
+- store source and these project docs there
+- use issue tracking system for features/bugs (needed for step-1)
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
