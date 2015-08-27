@@ -1,0 +1,161 @@
+---
+title: "ss_3"
+author: "Brandon C. Loudermilk"
+date: "August 24, 2015"
+output: html_document
+---
+
+We now have a ~~fully functioning~~ prototype `'Card'` class that has slots for `@suit` and `@rank` as well as a logical `@face_up` that indicates if the card face is 'face up'. I won't do very well to have a bunch of random cards hanging around -- we better package them up into a `'Deck'` class. IN the snippet below, we have create a 'Deck' class with a single a single slot called `@cards` which is a list that will hold all the cards in the deck.
+
+```{r}
+# Define the 'Deck' class
+setClass("Deck",
+         slots = list(cards = "list"))
+
+# Let's create a constructor function for 'Deck'
+
+Deck <- function(suits = SUITS, ranks = RANKS, num_suits = 1) {
+  cards <- list()
+  i <- 1
+  for (n in 1:num_suits) {
+    for (s in suits) {
+      for (r in ranks) {
+        card <- Card(suit = s, rank = r)
+        cards[[i]] <- card
+        i <- i + 1
+      }
+    }
+  }
+  new(Class = "Deck", cards = cards)
+}
+```
+
+Let's create some helper methods that query the deck object. First, let's write a function to return a vector of the suits in the current deck. 
+
+```{r}
+setGeneric("getSuits", function(x){
+  standardGeneric("getSuits")
+})
+
+setMethod("getSuits", "Deck", function(x){
+  last <- length(x@cards)
+  suits <- c()
+  for (i in 1:last) {
+    s <- x@cards[[i]]@suit
+    if (!(s %in% suits)) {
+      suits <- c(suits, s)
+    }
+  }
+return(suits)
+})
+```
+
+
+The default `Deck()` constructor will create a 'standard' [French deck](https://en.wikipedia.org/wiki/Playing_card#French_suits) of 4 suits and 13 ranks for 52 cards total. By setting specific arguments, the constructor also allows enough flexibility to create the 'custom' decks found in spider solitaire.
+```{r}
+# Create a standard 'Deck'
+standard_deck <- Deck()
+
+# w/ 52 cards
+length(standard_deck@cards)
+
+# and 4 suits 
+getSuits(standard_deck)
+
+# Create an 'easy' spider solitaire deck
+easy_deck <- Deck(suits = c("S"), ranks = 1:13, num_suits = 8)
+
+# Should have 108 cards
+length(easy_deck@cards)
+
+# All of suit 'Spades'
+getSuits(easy_deck)
+```
+
+At this point we have created a 'Deck' class that can contain 'Cards' objects of varying suits and ranks. A deck of cards isn't very useful however, unless one can shuffle it - importantly, however, we must also be able to replicate this random shuffle. Before write the `shuffle()` function, we need to modify our 'Card' and 'Deck' class so we can confirm that shuffling is working.
+```{r}
+# Add a unique id to the card
+Card <- setClass("Card",
+         slots = list(suit = "character", 
+                      rank = "numeric", 
+                      face_up = "logical",
+                      id = "numeric"))
+
+# Create a 'Card' object
+h1 <- new(Class = "Card", suit = "H", rank = 1, face_up = FALSE, id = 0)
+show(h1)
+
+# During 'Deck' creation create unique ids for each card
+Deck <- function(suits = SUITS, ranks = RANKS, num_suits = 1) {
+  cards <- list()
+  id <- 1
+  for (n in 1:num_suits) {
+    for (s in suits) {
+      for (r in ranks) {
+        card <- Card(suit = s, rank = r, face_up = FALSE, id = id)
+        cards[[id]] <- card
+        id <- id + 1
+      }
+    }
+  }
+  new(Class = "Deck", cards = cards)
+}
+
+new_deck <- Deck()
+# All cards in deck have a unique id 
+new_deck@cards[[1]]@id == 1
+new_deck@cards[[52]]@id == 52
+
+```
+
+Let's write a quick function so we can visualize the order of a deck, so that we can visualize it when shuffled.
+```{r}
+setGeneric("getIDs", function(x){
+  standardGeneric("getIDs")
+})
+
+setMethod("getIDs", "Deck", function(x){
+  ids <- c()
+  for (i in 1:length(x@cards)) {
+    id <- x@cards[[i]]@id
+    ids <- c(ids, id)
+  }
+return(ids)
+})
+
+d <- Deck()
+getIDs(d)
+```
+
+Now we can write a `shuffle()` function. We should be able to visualize it is working by shuffling a deck and then observing a new order of cards as reflected by their unique ids.
+
+```{r}
+setGeneric(name="shuffle",
+           def=function(deck,seed)
+           {
+             standardGeneric("shuffle")
+           }
+)
+
+# Given a seed, return the deck back in a new random card order
+setMethod(f="shuffle",
+          signature="Deck",
+          definition=function(deck, seed)
+          {
+            deck_size <- length(deck@cards)
+            set.seed(seed)
+            smpl <- sample(1:deck_size, deck_size)
+            
+            shuffled_cards <- deck@cards[smpl]
+            deck@cards <- shuffled_cards
+            return (deck)
+          }
+)
+
+#create a standard deck
+d <- Deck()
+getIDs(d)
+d <- shuffle(deck = d, seed = 1)
+getIDs(d) #shuffle works
+
+```

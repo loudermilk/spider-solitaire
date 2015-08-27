@@ -1,0 +1,112 @@
+---
+title: "ss_2"
+author: "Brandon C. Loudermilk"
+date: "August 24, 2015"
+output: html_document
+---
+
+The R language currently supports three object-oriented systems (S3, S4, & RC) each of which differs in degree of adherence to object-oriented principles (from S3 the weakest to RC the strongest). Wickham provides an indepth discussion of the different [OO systems](http://adv-r.had.co.nz/OO-essentials.html), but in summary, the key differences are:
+
+- **S3** - uses *generic-function* rather than *message-passing* OO; no formal definition of 'class'.
+- **S4** - has formal definition of 'class'; supports inheritance; supports multiple dispatch; has '@' operator for setting/getting slots.
+- **RC** - implements *message-passing* OO; objects are *mutable*
+
+For the present project (designing a spider solitaire game), I sought to implement the majority of the application in **S4** OO system. In S4, the representation of a class is defined through the `setClass()` function and class objects are instantiated with `new()`. S4 classes have three key properties: (1) a name; (2) a list of of slots/attributes; and (3) optional inheritance information.
+
+In spider solitaire, one of the key classes that will be needed by our application is 'Card'. Let's start by modeling the 'Card' class in the S4 system.
+
+```{r}
+library(methods) # Where S4-stuff lives
+
+# a Card has a suit = {(S)pade, (H)eart, (C)lub, (D)iamond }
+# a Card has a rank = {1:13}
+# a Card can be face_up = {TRUE, FALSE}
+# Define class "Card" using setClass() function
+Card <- setClass("Card",
+         slots = list(suit = "character", 
+                      rank = "numeric", 
+                      face_up = "logical"))
+
+# Create a 'Card' object
+h1 <- new(Class = "Card", suit = "H", rank = 1, face_up = FALSE)
+class(h1)
+print(h1)
+```
+
+As we can see, the default `print()` function doesn't print our object very nicely. Let's see if we can improve this by making use of generic function OO. The plain ole `print()` function you call every day, is in reality a generic function that has specific implementations based on input parameters.
+
+```{r, echo=FALSE}
+# Examine the definition of 'print'
+print
+# We see that "print" is a standardGeneric
+
+# Which has *many* specific implementations
+methods("print")
+
+# Let's look at the print for two different objects
+df <- data.frame(x=1:10, y = 1:10)
+print(df)
+
+fit <- glm(y~., data = df)
+print(fit)
+
+# When print(df) is called, it really calls a method print.data.frame(df)
+print.data.frame(df)
+
+# S4 Method dispatching entails inspection of the class of the input argument
+class(df) <- "glm"
+print(df) #Oops, thinks its a glm object and tries to call the wrong function
+print("^^eek")
+```
+
+Okay, so let's now create a custom print function for our 'Card' class.
+
+```{r}
+setMethod("print", "Card"
+          , function(x){
+            if (x@face_up == TRUE) {
+              print(paste0(x@suit,x@rank))
+            } else {
+              print("---")
+            }
+          })
+print(h1)
+```
+
+Rather than adding a specific implementation of an existing method, we can also create our own generic functions. Let's create a generic function called `flip()`, which is used to change the state of a binary attribute (e.g., flip a lightswitch on/off or flip a card/coin over)
+```{r}
+setGeneric("flip", function(x){
+  standardGeneric("flip")
+})
+
+setMethod("flip", "Card", function(x){x@face_up <- !(x@face_up)
+return(x)
+})
+
+# Now we can flip our card over!
+h1@face_up
+h1 <- flip(h1)
+h1@face_up
+```
+
+So now we have an S4 class called 'Card'... we also know how to create a new instance of a card (using `new()`) and we know how to create and call generic methods on our object. Finally, we would like to create a custom constructor function that wraps up the underlying call to `new()`.
+
+```{r}
+# Define some constants
+SUITS <- c("S", "H", "C", "D")
+RANKS <- 1:13
+
+# Card constructor
+Card <- function(suit, rank, face_up = FALSE) {
+  
+  # Basic validation
+  if(!(suit %in% SUITS)) stop(paste0("Invalid suit : ", suit))
+  if (!(rank %in% RANKS)) stop(paste0("Invalid rank : ", rank))  
+  
+  new(Class = "Card", suit = suit, rank = rank, face_up = face_up)
+}
+
+s1 <- Card("S",1)
+print(s1)
+
+```

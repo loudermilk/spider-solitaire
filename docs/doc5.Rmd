@@ -1,0 +1,114 @@
+---
+title: "ss_5"
+author: "Brandon C. Loudermilk"
+date: "August 25, 2015"
+output: html_document
+---
+
+We left off on the last post creating the major classes of the spider solitaire game: cards, the deck, piles, and the stack. Before fleshing out this design, I'd like to think a bit about visualization. Now the primary reason for building this game, is to use it to run simulations on, so I primarily need to interact with the system via some sort of batch language. In other words, I don't need a very sophisticated UI, but rather a rudimentary system that I can use to debug the application.  
+
+```{r}
+# Pile class
+setClass("Pile", 
+         slots = list(cards = "list"))
+
+# Pile constructor
+Pile <- function(cards = NULL) {
+  p <- new(Class="Pile", cards = cards)
+  return(p)
+}
+
+setGeneric(name="getCards",
+           def=function(object, ...)
+           {
+             standardGeneric("getCards")
+           }
+)
+
+setMethod(f="getCards",
+          signature="Pile",
+          definition=function(object, ...)
+          {
+            return (object@cards)
+          }
+)
+
+setMethod("show",
+          signature = "Pile",
+          definition = function(object) {
+            cat("An object of class ", class(object), "\n", sep = "")
+            cards <- object@cards
+            for (c in cards) {
+              print(c)
+            }
+            
+            invisible(NULL)
+            })
+```
+asd
+
+```{r}
+
+setMethod("show",
+          signature = "Game",
+          definition = function(object) {
+            cat("An object of class ", class(object), "\n", sep = "")
+            g <- object
+            
+            num_cols <- length(g@piles) # This is 10 piles
+            max_cards <- 0
+            for ( p in g@piles) {
+              num_cards <- length(p@cards)
+              if (num_cards > max_cards) {
+                max_cards <- num_cards
+              }
+            }
+            
+            df <- data.frame(a = character(max_cards),
+                             b = character(max_cards),
+                             c = character(max_cards),
+                             d = character(max_cards),
+                             e = character(max_cards),
+                             f = character(max_cards),
+                             g = character(max_cards),
+                             h = character(max_cards),
+                             i = character(max_cards),
+                             j = character(max_cards), 
+                             stringsAsFactors = FALSE)
+            
+            i <- 1
+            for (p in g@piles) {
+              cards <- getCards(p) #need to write this method
+              j <- 1
+              for (card in cards) {
+                if (card@face_up == TRUE) {
+                  smbl <- paste0(card@suit, card@rank)
+                } else {
+                  smbl <- "***"
+                }
+                df[j,i] <- smbl
+                j <- j + 1
+              }
+
+              i <- i + 1
+            }
+            show(df)
+           
+            invisible(NULL)
+
+            })
+
+
+
+
+
+```
+
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

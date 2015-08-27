@@ -24,13 +24,13 @@ Card <- function(suit, rank, face_up = FALSE) {
 
 Deck <- function(suits = c("S","H","C","D"), ranks = 1:13, num_suits = 1) {
   cards <- list()
-  i <- 1
+  id <- 1
   for (n in 1:num_suits) {
     for (s in suits) {
       for (r in ranks) {
-        card <- Card(suit = s, rank = r)
-        cards[[i]] <- card
-        i <- i + 1
+        card <- Card(suit = s, rank = r, id = id)
+        cards[[id]] <- card
+        id <- id + 1
       }
     }
   }
