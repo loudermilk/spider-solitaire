@@ -5,7 +5,7 @@ date: "August 24, 2015"
 output: html_document
 ---
 
-We now have a ~~fully functioning~~ prototype `'Card'` class that has slots for `@suit` and `@rank` as well as a logical `@face_up` that indicates if the card face is 'face up'. I won't do very well to have a bunch of random cards hanging around -- we better package them up into a `'Deck'` class. IN the snippet below, we have create a 'Deck' class with a single a single slot called `@cards` which is a list that will hold all the cards in the deck.
+We now have a ~~fully functioning~~ prototype `'Card'` class that has slots for `@suit` and `@rank` as well as a logical `@face_up` that indicates if the card face is 'face up'. I won't do very well to have a bunch of random cards hanging around -- we better package them up into a `'Deck'` class. In the snippet below, we have create a 'Deck' class with a single a single slot called `@cards` which is a list that will hold all the cards in the deck.
 
 ```{r}
 # Define the 'Deck' class

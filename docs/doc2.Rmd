@@ -30,63 +30,54 @@ Card <- setClass("Card",
 # Create a 'Card' object
 h1 <- new(Class = "Card", suit = "H", rank = 1, face_up = FALSE)
 class(h1)
-print(h1)
+show(h1)
 ```
 
-As we can see, the default `print()` function doesn't print our object very nicely. Let's see if we can improve this by making use of generic function OO. The plain ole `print()` function you call every day, is in reality a generic function that has specific implementations based on input parameters.
+As we can see, the default `show()` function doesn't print our object very nicely. Let's see if we can improve this by making use of generic function OO. The plain ole `show()` function you call every day, is in reality a generic function that has specific implementations based on input parameters.
 
 ```{r, echo=FALSE}
 # Examine the definition of 'print'
-print
+show
 # We see that "print" is a standardGeneric
-
-# Which has *many* specific implementations
-methods("print")
-
-# Let's look at the print for two different objects
-df <- data.frame(x=1:10, y = 1:10)
-print(df)
-
-fit <- glm(y~., data = df)
-print(fit)
-
-# When print(df) is called, it really calls a method print.data.frame(df)
-print.data.frame(df)
-
-# S4 Method dispatching entails inspection of the class of the input argument
-class(df) <- "glm"
-print(df) #Oops, thinks its a glm object and tries to call the wrong function
-print("^^eek")
+isGeneric("show")
 ```
 
-Okay, so let's now create a custom print function for our 'Card' class.
+Since the generic method `show` already exists, all we need to do is define a class-specific implementation function so it can handle the 'Card' class of object. We can define our method by calling the function `setMethod` which takes as arguments: **f** the name of the method, **signature** the class of the method, and the **definition** or body of the method.
 
 ```{r}
-setMethod("print", "Card"
-          , function(x){
-            if (x@face_up == TRUE) {
-              print(paste0(x@suit,x@rank))
+setMethod(f = "show", 
+          signature = "Card", 
+          definition = function(object){
+            if (object@face_up == TRUE) {
+              rank <- object@rank
+              if (rank < 10){
+                rank <- paste0("0",rank)
+              }
+              show(paste0(object@suit,rank))
             } else {
-              print("---")
+              show("---")
             }
           })
-print(h1)
+show(h1)
 ```
 
-Rather than adding a specific implementation of an existing method, we can also create our own generic functions. Let's create a generic function called `flip()`, which is used to change the state of a binary attribute (e.g., flip a lightswitch on/off or flip a card/coin over)
+For the existing `show` method, we defined a new method definition (via `setMethod()`) to handle our specific 'Card' class. Rather than use an existing method, we can also create our own generic by a call to `setGeneric()`. Let's create a generic function called `flip()`, which could be used to change the state of a binary attribute or feature (e.g., flip a lightswitch on/off or flip a card/coin over)
 ```{r}
-setGeneric("flip", function(x){
-  standardGeneric("flip")
+setGeneric("flip", 
+           function(x){
+          standardGeneric("flip")
 })
 
-setMethod("flip", "Card", function(x){x@face_up <- !(x@face_up)
+setMethod("flip", 
+          "Card", 
+          function(x){x@face_up <- !(x@face_up)
 return(x)
 })
 
 # Now we can flip our card over!
-h1@face_up
+show(h1)
 h1 <- flip(h1)
-h1@face_up
+show(h1)
 ```
 
 So now we have an S4 class called 'Card'... we also know how to create a new instance of a card (using `new()`) and we know how to create and call generic methods on our object. Finally, we would like to create a custom constructor function that wraps up the underlying call to `new()`.
@@ -107,6 +98,7 @@ Card <- function(suit, rank, face_up = FALSE) {
 }
 
 s1 <- Card("S",1)
+s1 <- flip(s1)
 print(s1)
 
 ```
