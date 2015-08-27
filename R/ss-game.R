@@ -1,18 +1,10 @@
+#ss-game.R
+
 SEED <- 1
 
 setClass("Game",
          slots = list(piles = "list", stack = "list"))
 
-setClass("Pile", 
-         slots = list(cards = "list"))
-
-pile <- new(Class = "Pile")
-
-
-Pile <- function(cards = NULL) {
-  p <- new(Class="Pile", cards = cards)
-  return(p)
-}
 
 Game <- function(difficulty) {
   
